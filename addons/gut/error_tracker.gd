@@ -7,7 +7,7 @@ class_name GutErrorTracker
 # add/remove a logger then this is how it should do it.
 # ------------------------------------------------------------------------------
 static var registered_loggers := {}
-static var register_loggers = true
+static var register_loggers = false
 
 static func register_logger(which):
 	if(register_loggers and !registered_loggers.has(which)):

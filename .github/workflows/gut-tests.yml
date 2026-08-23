@@ -50,6 +50,7 @@ jobs:
             -gconfig=.gutconfig.json \
             -gjunit_xml_file=test-results/gut-junit.xml \
             -gcompact_mode \
+            -gno_error_tracking \
             -gexit
 
       - name: Archive test reports

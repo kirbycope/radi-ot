@@ -163,7 +163,7 @@ func _apply_options(opts, gut):
 	if(!opts.failure_error_types.has(FAIL_ERROR_TYPE_GUT)):
 		gut.error_tracker.treat_gut_errors_as = GutUtils.TREAT_AS.NOTHING
 
-	gut.error_tracker.register_loggers = !opts.no_error_tracking
+	GutErrorTracker.register_loggers = !opts.no_error_tracking
 
 	return gut
 
