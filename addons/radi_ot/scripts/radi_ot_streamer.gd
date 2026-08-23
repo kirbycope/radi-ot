@@ -360,7 +360,7 @@ func _connect_to_url(url: String) -> void:
 	_active_channel_idx = 0
 
 	_http_client = HTTPClient.new()
-	var tls_options: TLSOptions = TLSOptions.client_unsafe() if _current_use_ssl else null
+	var tls_options: TLSOptions = TLSOptions.client() if _current_use_ssl else null
 	var err: Error = _http_client.connect_to_host(_current_host, _current_port, tls_options)
 
 	if err != OK:
@@ -400,7 +400,7 @@ func _poll_desktop_stream() -> void:
 				_on_desktop_stream_error("Connection failed (status %d)" % status)
 
 		StreamState.REQUESTING:
-			if status == HTTPClient.STATUS_BODY:
+			if _http_client.has_response() or status == HTTPClient.STATUS_BODY:
 				var resp_code: int = _http_client.get_response_code()
 				if resp_code >= 300 and resp_code < 400:
 					_handle_redirect()
@@ -418,6 +418,13 @@ func _poll_desktop_stream() -> void:
 				if not chunk.is_empty():
 					_incoming_raw_bytes.append_array(chunk)
 					_process_incoming_chunks()
+			elif _http_client.has_response() and status == HTTPClient.STATUS_CONNECTED:
+				var conn: StreamPeer = _http_client.get_connection()
+				if conn != null and conn.get_available_bytes() > 0:
+					var read_res: Array = conn.get_partial_data(mini(conn.get_available_bytes(), 65536))
+					if read_res[0] == OK and not (read_res[1] as PackedByteArray).is_empty():
+						_incoming_raw_bytes.append_array(read_res[1])
+						_process_incoming_chunks()
 			elif status == HTTPClient.STATUS_DISCONNECTED or status == HTTPClient.STATUS_CONNECTION_ERROR:
 				_on_desktop_stream_error("Stream disconnected (status %d)" % status)
 
@@ -449,10 +456,10 @@ func _handle_redirect() -> void:
 	_redirect_count += 1
 	var headers_dict: Dictionary = _http_client.get_response_headers_as_dictionary()
 	var new_location: String = ""
-	if headers_dict.has("Location"):
-		new_location = headers_dict["Location"]
-	elif headers_dict.has("location"):
-		new_location = headers_dict["location"]
+	for key in headers_dict:
+		if (key as String).to_lower() == "location":
+			new_location = headers_dict[key]
+			break
 
 	if new_location.is_empty():
 		_on_desktop_stream_error("HTTP redirect missing Location header.")

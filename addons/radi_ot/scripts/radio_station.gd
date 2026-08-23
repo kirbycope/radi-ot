@@ -8,7 +8,7 @@ extends Resource
 @export var station_name: String = "KEXP 90.3 FM"
 @export var call_sign: String = "KEXP"
 @export var frequency: float = 90.3
-@export var stream_url: String = "https://kexp.streamguys1.com/kexp160.aac"
+@export var stream_url: String = "https://kexp.streamguys1.com/kexp128.mp3"
 @export var genre: String = "Alternative / Indie"
 @export var tagline: String = "Where the Music Matters"
 @export_multiline var description: String = "Seattle's iconic listener-powered station."
