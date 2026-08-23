@@ -20,7 +20,9 @@ var _power_on: bool = true
 @onready var _frequency_label: Label = $Control/PanelContainer/MarginContainer/VBoxContainer/HeaderHBox/FrequencyLabel as Label
 @onready var _tagline_label: Label = $Control/PanelContainer/MarginContainer/VBoxContainer/TaglineLabel as Label
 @onready var _genre_label: Label = $Control/PanelContainer/MarginContainer/VBoxContainer/GenreLabel as Label
-@onready var _status_badge: Label = $Control/PanelContainer/MarginContainer/VBoxContainer/HeaderHBox/StatusBadge as Label
+@onready var _status_badge: Control = $Control/PanelContainer/MarginContainer/VBoxContainer/HeaderHBox/StatusBadge as Control
+@onready var _status_dot: TextureRect = $Control/PanelContainer/MarginContainer/VBoxContainer/HeaderHBox/StatusBadge/StatusDot as TextureRect
+@onready var _status_label: Label = $Control/PanelContainer/MarginContainer/VBoxContainer/HeaderHBox/StatusBadge/StatusLabel as Label
 @onready var _dial_bar: ProgressBar = $Control/PanelContainer/MarginContainer/VBoxContainer/DialContainer/DialProgressBar as ProgressBar
 @onready var _bulletin_banner: PanelContainer = $Control/BulletinBanner as PanelContainer
 @onready var _bulletin_text_label: Label = $Control/BulletinBanner/MarginContainer/HBoxContainer/BulletinLabel as Label
@@ -99,10 +101,12 @@ func set_buffering_state(is_buffering: bool) -> void:
 		return
 
 	if is_buffering:
-		_status_badge.text = "⚡ TUNING..."
+		if _status_label != null:
+			_status_label.text = "TUNING..."
 		_status_badge.modulate = Color(1.0, 0.8, 0.2)
 	else:
-		_status_badge.text = "● ON AIR"
+		if _status_label != null:
+			_status_label.text = "ON AIR"
 		_status_badge.modulate = Color(0.2, 1.0, 0.5)
 
 
@@ -111,10 +115,12 @@ func set_power_state(is_on: bool) -> void:
 	show_hud()
 	if _status_badge != null:
 		if is_on:
-			_status_badge.text = "● ON AIR"
+			if _status_label != null:
+				_status_label.text = "ON AIR"
 			_status_badge.modulate = Color(0.2, 1.0, 0.5)
 		else:
-			_status_badge.text = "○ POWER OFF"
+			if _status_label != null:
+				_status_label.text = "POWER OFF"
 			_status_badge.modulate = Color(0.6, 0.6, 0.6)
 
 

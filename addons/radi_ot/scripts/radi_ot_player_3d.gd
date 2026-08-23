@@ -50,7 +50,11 @@ func _ready() -> void:
 	if enable_hud and _hud != null:
 		_hud.update_station_info(get_current_station())
 
-	if not Engine.is_editor_hint() and auto_play_on_ready and _power_on:
+	var is_web: bool = (
+		OS.has_feature("web")
+		or ProjectSettings.get_setting("rendering/renderer/rendering_method") not in ["forward_plus", "mobile"]
+	)
+	if not Engine.is_editor_hint() and auto_play_on_ready and _power_on and not is_web:
 		_tune_current_station()
 
 

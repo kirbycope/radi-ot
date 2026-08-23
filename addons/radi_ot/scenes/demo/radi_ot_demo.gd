@@ -11,22 +11,45 @@ const AUDIO_COASTAL_WIND: AudioStream = preload(
 
 @export var radio_player: RadiOtPlayer3D
 
+var project_rendering_method: String = ProjectSettings.get_setting("rendering/renderer/rendering_method")
+
 @onready var _bulletin_button_1: Button = $UI/VBoxContainer/BulletinBtn1 as Button
 @onready var _bulletin_button_2: Button = $UI/VBoxContainer/BulletinBtn2 as Button
 @onready var _cancel_bulletin_btn: Button = $UI/VBoxContainer/CancelBulletinBtn as Button
 @onready var _camera: Camera3D = $Camera3D as Camera3D
+@onready var click_to_start: CanvasLayer = $ClickToStart
 
 
 func _ready() -> void:
 	if radio_player == null and has_node("RadioMesh/RadiOtPlayer3D"):
 		radio_player = get_node("RadioMesh/RadiOtPlayer3D") as RadiOtPlayer3D
 
-	if _bulletin_button_1 != null:
-		_bulletin_button_1.pressed.connect(_on_bulletin_1_pressed)
-	if _bulletin_button_2 != null:
-		_bulletin_button_2.pressed.connect(_on_bulletin_2_pressed)
-	if _cancel_bulletin_btn != null:
-		_cancel_bulletin_btn.pressed.connect(_on_cancel_bulletin_pressed)
+	# Get rendering settings from the project settings
+	var requires_input_activation: bool = (
+		OS.has_feature("web")
+		or project_rendering_method not in ["forward_plus", "mobile"]
+	)
+	# [Webfix] Show the Click to Start button
+	if requires_input_activation:
+		if click_to_start != null:
+			click_to_start.show()
+	else:
+		if click_to_start != null:
+			click_to_start.hide()
+
+
+func _input(event: InputEvent) -> void:
+	if click_to_start != null and click_to_start.visible:
+		if (event is InputEventMouseButton and event.is_pressed()) \
+				or (event is InputEventScreenTouch and event.is_pressed()):
+			_start_demo()
+
+
+func _start_demo() -> void:
+	if click_to_start != null:
+		click_to_start.hide()
+	if radio_player != null:
+		radio_player.tune_to_station_index(0)
 
 
 func _process(delta: float) -> void:
@@ -40,7 +63,7 @@ func _process(delta: float) -> void:
 		_camera.look_at(Vector3(0.0, 0.5, 0.0))
 
 
-func _on_bulletin_1_pressed() -> void:
+func _on_bulletin_btn_1_pressed() -> void:
 	if radio_player != null:
 		radio_player.urgent_bulletin(
 			AUDIO_SPACE_NEEDLE,
@@ -48,7 +71,7 @@ func _on_bulletin_1_pressed() -> void:
 		)
 
 
-func _on_bulletin_2_pressed() -> void:
+func _on_bulletin_btn_2_pressed() -> void:
 	if radio_player != null:
 		radio_player.urgent_bulletin(
 			AUDIO_COASTAL_WIND,
@@ -56,6 +79,26 @@ func _on_bulletin_2_pressed() -> void:
 		)
 
 
-func _on_cancel_bulletin_pressed() -> void:
+func _on_cancel_bulletin_btn_pressed() -> void:
 	if radio_player != null:
 		radio_player.cancel_bulletin()
+
+
+func _on_last_station_pressed() -> void:
+	if radio_player != null:
+		radio_player.tune_previous_station()
+
+
+func _on_last_touch_screen_button_pressed() -> void:
+	if radio_player != null:
+		radio_player.tune_previous_station()
+
+
+func _on_next_station_pressed() -> void:
+	if radio_player != null:
+		radio_player.tune_next_station()
+
+
+func _on_next_touch_screen_button_pressed() -> void:
+	if radio_player != null:
+		radio_player.tune_next_station()
