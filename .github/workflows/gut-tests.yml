@@ -32,8 +32,12 @@ jobs:
       - name: Run GUT Unit Tests
         env:
           GODOT_DISABLE_LEAK_CHECKS: "1"
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p test-results
+
+          set +e
           godot \
             --headless \
             --audio-driver Dummy \
@@ -42,8 +46,22 @@ jobs:
             -gconfig=.gutconfig.json \
             -gjunit_xml_file=test-results/gut-junit.xml \
             -gcompact_mode \
-            -gno_error_tracking \
             -gexit
+          GODOT_EXIT_CODE=$?
+          set -e
+
+          if [ ! -f test-results/gut-junit.xml ]; then
+            echo "::error::JUnit test results file was not generated"
+            exit 1
+          fi
+
+          FAILURES=$(grep -o 'failures="[0-9]*"' test-results/gut-junit.xml | head -1 | grep -o '[0-9]*' || echo "1")
+          if [ "$FAILURES" != "0" ]; then
+            echo "::error::GUT tests failed with $FAILURES failure(s)"
+            exit 1
+          fi
+
+          echo "All GUT unit tests completed successfully."
 
       - name: Archive test reports
         if: always()
