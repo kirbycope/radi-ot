@@ -39,8 +39,8 @@ jobs:
           latest_tag="$(git tag -l 'v*' | sort -V | tail -n1 || true)"
           if [[ -z "$latest_tag" ]]; then
             echo "skip=false" >> "$GITHUB_OUTPUT"
-            echo "version=3.0.0" >> "$GITHUB_OUTPUT"
-            echo "tag=v3.0.0" >> "$GITHUB_OUTPUT"
+            echo "version=1.0.0" >> "$GITHUB_OUTPUT"
+            echo "tag=v1.0.0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -64,12 +64,12 @@ jobs:
           version="${{ steps.version.outputs.version }}"
 
           rm -rf dist
-          mkdir -p dist
-          cp -R addons/3d_player_controller dist/3d_player_controller
+          mkdir -p dist/radi_ot
+          cp -R addons/radi_ot/* dist/radi_ot/
 
           (
             cd dist
-            zip -r "../3d_player_controller-v${version}.zip" "3d_player_controller"
+            zip -r "../radi_ot-v${version}.zip" "radi_ot"
           )
 
       - name: Publish GitHub release
@@ -79,4 +79,4 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: Release ${{ steps.version.outputs.tag }}
           generate_release_notes: true
-          files: 3d_player_controller-v${{ steps.version.outputs.version }}.zip
+          files: radi_ot-v${{ steps.version.outputs.version }}.zip
