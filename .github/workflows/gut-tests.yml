@@ -12,18 +12,30 @@ jobs:
   gut:
     runs-on: ubuntu-latest
 
+    env:
+      HOME: /tmp/godot-home
+      XDG_CONFIG_HOME: /tmp/godot-home/.config
+      XDG_CACHE_HOME: /tmp/godot-home/.cache
+
+    container:
+      image: "barichello/godot-ci:latest"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Godot
-        uses: chickensoft-games/setup-godot@v2
-        with:
-          version: 4.4.0
-          use-dotnet: false
+      - name: Install Container Dependencies
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends libfontconfig1
+
+      - name: Setup Godot Home Directories
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$XDG_CONFIG_HOME/godot" "$XDG_CACHE_HOME"
 
       - name: Import project assets
-        run: godot --headless --path "$PWD" --import --quit
+        run: godot --headless --editor --quit --path "$PWD"
 
       - name: Run GUT Unit Tests
         env:
