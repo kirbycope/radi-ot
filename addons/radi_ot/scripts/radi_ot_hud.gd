@@ -5,8 +5,23 @@ extends CanvasLayer
 ## CanvasLayer HUD display for radi-ot Seattle radio station information,
 ## frequency dial, signal visualizer, keyboard hints, and emergency bulletin ticker.
 
+@export_group("HUD Settings")
 @export var show_tuning_hints: bool = true
-@export var auto_hide_after_seconds: float = 6.0
+@export var toast_hide: bool = true
+@export var toast_hide_seconds: float = 5.0
+
+## Backward compatibility aliases
+var auto_hide_after_seconds: float:
+	get:
+		return toast_hide_seconds
+	set(value):
+		toast_hide_seconds = value
+
+var toast_mode: bool:
+	get:
+		return toast_hide
+	set(value):
+		toast_hide = value
 
 var _auto_hide_timer: float = 0.0
 var _is_bulletin_active: bool = false
@@ -37,7 +52,16 @@ func _ready() -> void:
 		_bulletin_banner.visible = false
 	if _hint_label != null:
 		_hint_label.visible = show_tuning_hints
-	_auto_hide_timer = auto_hide_after_seconds
+	if toast_mode:
+		_auto_hide_timer = 0.0
+		if _panel_container != null:
+			_panel_container.modulate.a = 0.0
+			_panel_container.visible = false
+	else:
+		_auto_hide_timer = 0.0
+		if _panel_container != null:
+			_panel_container.modulate.a = 1.0
+			_panel_container.visible = true
 
 
 func _process(delta: float) -> void:
@@ -48,20 +72,44 @@ func _process(delta: float) -> void:
 			_dial_bar.value = _displayed_frequency
 
 	# Auto hide panel if idle and not in bulletin
-	if auto_hide_after_seconds > 0.0 and not _is_bulletin_active:
-		if _auto_hide_timer > 0.0:
-			_auto_hide_timer -= delta
-			if _panel_container != null:
-				_panel_container.modulate.a = move_toward(_panel_container.modulate.a, 1.0, delta * 4.0)
-		else:
-			if _panel_container != null:
-				_panel_container.modulate.a = move_toward(_panel_container.modulate.a, 0.4, delta * 2.0)
+	if toast_hide:
+		if toast_hide_seconds > 0.0 and not _is_bulletin_active:
+			if _auto_hide_timer > 0.0:
+				_auto_hide_timer -= delta
+				if _panel_container != null:
+					_panel_container.visible = true
+					_panel_container.modulate.a = move_toward(_panel_container.modulate.a, 1.0, delta * 4.0)
+			else:
+				if _panel_container != null:
+					_panel_container.modulate.a = move_toward(_panel_container.modulate.a, 0.0, delta * 2.0)
+					if _panel_container.modulate.a <= 0.01:
+						_panel_container.visible = false
+	else:
+		if _panel_container != null:
+			_panel_container.visible = true
+			_panel_container.modulate.a = 1.0
 
 
-func show_hud() -> void:
-	_auto_hide_timer = auto_hide_after_seconds
+func show_hud(duration: float = -1.0) -> void:
+	_auto_hide_timer = duration if duration > 0.0 else auto_hide_after_seconds
 	if _panel_container != null:
+		_panel_container.visible = true
 		_panel_container.modulate.a = 1.0
+
+
+func hide_hud() -> void:
+	_auto_hide_timer = 0.0
+	if _panel_container != null:
+		_panel_container.modulate.a = 0.0
+		_panel_container.visible = false
+
+
+func show_toast(duration: float = -1.0) -> void:
+	show_hud(duration)
+
+
+func hide_toast() -> void:
+	hide_hud()
 
 
 func update_station_info(station: RadioStation) -> void:
