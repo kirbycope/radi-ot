@@ -17,10 +17,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Godot
-        uses: chickensoft-games/setup-godot@v2
-        with:
-          version: 4.4.0
-          use-dotnet: false
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSL -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.8-dev3/Godot_v4.8-dev3_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp
+          sudo mv /tmp/Godot_v4.8-dev3_linux.x86_64 /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+          rm -f /tmp/godot.zip
 
       - name: Import project assets
         run: godot --headless --path "$PWD" --import --quit
