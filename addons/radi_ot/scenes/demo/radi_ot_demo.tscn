@@ -1,0 +1,124 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://addons/radi_ot/scenes/demo/radi_ot_demo.gd" id="1_demo_script"]
+[ext_resource type="PackedScene" path="res://addons/radi_ot/scenes/radi_ot_player_3d.tscn" id="2_radio_player"]
+[ext_resource type="Texture2D" path="res://addons/radi_ot/assets/icons/alert_icon.svg" id="3_alert_icon"]
+[ext_resource type="Texture2D" path="res://addons/radi_ot/assets/icons/weather_icon.svg" id="4_weather_icon"]
+[ext_resource type="Texture2D" path="res://addons/radi_ot/assets/icons/stop_icon.svg" id="5_stop_icon"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.12, 0.25, 0.35, 1)
+sky_horizon_color = Color(0.3, 0.45, 0.5, 1)
+ground_bottom_color = Color(0.08, 0.12, 0.1, 1)
+ground_horizon_color = Color(0.2, 0.25, 0.22, 1)
+
+[sub_resource type="Sky" id="Sky_world"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_world"]
+background_mode = 2
+sky = SubResource("Sky_world")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.8, 0.85, 1)
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.12, 0.16, 0.14, 1)
+roughness = 0.8
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+material = SubResource("StandardMaterial3D_floor")
+size = Vector2(30, 30)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_radio_body"]
+albedo_color = Color(0.18, 0.35, 0.28, 1)
+metallic = 0.2
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_radio_body"]
+material = SubResource("StandardMaterial3D_radio_body")
+size = Vector3(1.2, 0.6, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_speaker"]
+albedo_color = Color(0.08, 0.08, 0.08, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_speaker"]
+material = SubResource("StandardMaterial3D_speaker")
+top_radius = 0.18
+bottom_radius = 0.18
+height = 0.05
+
+[node name="RadiOtDemo" type="Node3D"]
+script = ExtResource("1_demo_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_world")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_floor")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 1.6, 3.2)
+current = true
+
+[node name="RadioMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_radio_body")
+
+[node name="LeftSpeaker" type="MeshInstance3D" parent="RadioMesh"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.35, 0, 0.2)
+mesh = SubResource("CylinderMesh_speaker")
+
+[node name="RightSpeaker" type="MeshInstance3D" parent="RadioMesh"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.35, 0, 0.2)
+mesh = SubResource("CylinderMesh_speaker")
+
+[node name="RadiOtPlayer3D" parent="RadioMesh" instance=ExtResource("2_radio_player")]
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -340.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 220.0
+grow_horizontal = 0
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 16
+text = "radi-ot Demo Controls"
+
+[node name="BulletinBtn1" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = " Trigger Story Bulletin: Space Needle"
+icon = ExtResource("3_alert_icon")
+
+[node name="BulletinBtn2" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = " Trigger Story Bulletin: Storm Alert"
+icon = ExtResource("4_weather_icon")
+
+[node name="CancelBulletinBtn" type="Button" parent="UI/VBoxContainer"]
+layout_mode = 2
+text = " Cancel Urgent Bulletin"
+icon = ExtResource("5_stop_icon")
