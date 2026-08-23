@@ -77,15 +77,13 @@ static func exclude_gut(should=true):
 	if(should):
 		val = DIRECTORY_EXCLUDE
 	var dir_rules = ProjectSettings.get(DIRECTORY_RULES)
-	if dir_rules != null:
-		dir_rules[GUT_PATH] = val
-		ProjectSettings.set(DIRECTORY_RULES, dir_rules)
+	dir_rules[GUT_PATH] = val
+	ProjectSettings.set(DIRECTORY_RULES, dir_rules)
 
 static func exclude_dynamic_files():
 	var dir_rules = ProjectSettings.get(DIRECTORY_RULES)
-	if dir_rules != null:
-		dir_rules[DYNAMIC_FILES_PATH] = DIRECTORY_EXCLUDE
-		ProjectSettings.set(DIRECTORY_RULES, dir_rules)
+	dir_rules[DYNAMIC_FILES_PATH] = DIRECTORY_EXCLUDE
+	ProjectSettings.set(DIRECTORY_RULES, dir_rules)
 
 
 ## Resets warning settings to what they are set to in Project Settings
