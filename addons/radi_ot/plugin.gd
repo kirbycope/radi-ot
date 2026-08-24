@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Antigravity Contributors
+# SPDX-License-Identifier: MIT
+
 @tool
 extends EditorPlugin
 
