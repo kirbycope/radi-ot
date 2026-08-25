@@ -1,5 +1,4 @@
 name: GUT Unit Tests
-
 on:
   push:
     branches:
@@ -12,60 +11,58 @@ jobs:
   gut:
     runs-on: ubuntu-latest
 
+    env:
+      HOME: /tmp/godot-home
+      XDG_CONFIG_HOME: /tmp/godot-home/.config
+      XDG_CACHE_HOME: /tmp/godot-home/.cache
+
+    container:
+      image: "barichello/godot-ci:4.7"
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Setup Godot
+      - name: Install Godot runtime deps
         shell: bash
         run: |
           set -euo pipefail
-          curl -sSL -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.8-dev3/Godot_v4.8-dev3_linux.x86_64.zip
-          unzip -q /tmp/godot.zip -d /tmp
-          sudo mv /tmp/Godot_v4.8-dev3_linux.x86_64 /usr/local/bin/godot
-          sudo chmod +x /usr/local/bin/godot
-          rm -f /tmp/godot.zip
+          apt-get update
+          apt-get install -y --no-install-recommends blender libfontconfig1 python3-numpy
 
-      - name: Import project assets
+      - name: Configure Blender path for headless import
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$XDG_CONFIG_HOME/godot" "$XDG_CACHE_HOME"
+          cat > "$XDG_CONFIG_HOME/godot/editor_settings-4.7.tres" <<'EOF'
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          filesystem/import/blender/blender_path = "/usr/bin/blender"
+          EOF
+
+      - name: Import project
         run: godot --headless --path "$PWD" --import --quit
 
-      - name: Run GUT Unit Tests
+      - name: Run Tests
         env:
           GODOT_DISABLE_LEAK_CHECKS: "1"
-        shell: bash
         run: |
-          set -euo pipefail
           mkdir -p test-results
-
-          set +e
           godot \
             --headless \
-            --audio-driver Dummy \
+            -d \
             --path "$PWD" \
             -s addons/gut/gut_cmdln.gd \
-            -gconfig=.gutconfig.json \
+            -gconfig=res://addons/radi_ot/.gutconfig.json \
             -gjunit_xml_file=test-results/gut-junit.xml \
             -gcompact_mode \
             -gexit
-          GODOT_EXIT_CODE=$?
-          set -e
-
-          if [ ! -f test-results/gut-junit.xml ]; then
-            echo "::error::JUnit test results file was not generated"
-            exit 1
-          fi
-
-          FAILURES=$(grep -o 'failures="[0-9]*"' test-results/gut-junit.xml | head -1 | grep -o '[0-9]*' || echo "1")
-          if [ "$FAILURES" != "0" ]; then
-            echo "::error::GUT tests failed with $FAILURES failure(s)"
-            exit 1
-          fi
-
-          echo "All GUT unit tests completed successfully."
 
       - name: Archive test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gut-test-reports
           path: test-results/
