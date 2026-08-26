@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Radi-ot!"
-run/main_scene="res://addons/radi_ot/scenes/demo/radi_ot_demo.tscn"
+run/main_scene="uid://cx6g4w1kydt88"
 config/features=PackedStringArray("4.8", "Forward Plus")
 config/icon="res://icon.svg"
 
