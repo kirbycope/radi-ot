@@ -1,4 +1,4 @@
-![Preview](/radi-ot.png)
+![Preview](./addons/radi_ot/assets/radi-ot.png)
 
 # radi-ot (Radio + Godot)
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ct7yovjx0sr2"
-path="res://.godot/imported/radi-ot.png-5a5d4b2aaa3997967469935950180667.ctex"
+uid="uid://mcykwy0pvpd4"
+path="res://.godot/imported/radi-ot.png-316e9aaee668dfe39e6df20588c2eab0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://radi-ot.png"
-dest_files=["res://.godot/imported/radi-ot.png-5a5d4b2aaa3997967469935950180667.ctex"]
+source_file="res://addons/radi_ot/assets/radi-ot.png"
+dest_files=["res://.godot/imported/radi-ot.png-316e9aaee668dfe39e6df20588c2eab0.ctex"]
 
 [params]
 
