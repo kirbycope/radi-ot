@@ -72,8 +72,10 @@ jobs:
           version="${{ steps.version.outputs.version }}"
 
           rm -rf dist
-          mkdir -p dist/radi_ot
-          cp -R addons/radi_ot/* dist/radi_ot/
+          mkdir -p "dist/radi_ot"
+          # The addon is the repository root; everything but its own scaffolding goes in the zip.
+          rsync -a --exclude '/.git' --exclude '/.github' --exclude '/demo' \
+                --exclude '/.gitignore' --exclude '/.gitattributes' ./ "dist/radi_ot/"
 
           (
             cd dist
