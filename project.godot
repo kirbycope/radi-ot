@@ -35,3 +35,11 @@ joypads/ignore_joypad_on_unfocused_application=true
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+
+[importer_defaults]
+
+texture={
+&"compress/mode": 1,
+&"detect_3d/compress_to": 0,
+&"process/size_limit": 512
+}
