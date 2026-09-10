@@ -1,3 +1,5 @@
+![Preview](addons/radi_ot/assets/radi-ot.png)
+
 # radi-ot (Radio + Godot)
 
 Internet radio in Godot: stations as resources, a 3D player node and a radial station picker.
