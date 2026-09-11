@@ -68,28 +68,14 @@ jobs:
             godot --headless --path "$PWD" --import
           done
 
-      - name: Diagnose the shutdown abort
+      - name: Does the engine abort on plain shutdown
         shell: bash
         run: |
           set +e
-          echo "===== plain engine shutdown, no GUT ====="
           godot --headless --audio-driver Dummy --path "$PWD" --quit
-          echo "PLAIN QUIT EXIT=$?"
-          echo "===== plain engine shutdown, default audio driver ====="
+          echo "PLAIN_QUIT_DUMMY_EXIT=$?"
           godot --headless --path "$PWD" --quit
-          echo "PLAIN QUIT DEFAULT DRIVER EXIT=$?"
-          echo "===== load one station resource then quit ====="
-          cat > /tmp/probe.gd <<'GD'
-extends SceneTree
-func _init() -> void:
-    var s = load("res://addons/radi_ot/resources/stations/kexp_90_3.tres")
-    print("loaded: ", s)
-    quit()
-GD
-          cp /tmp/probe.gd probe.gd
-          godot --headless --audio-driver Dummy --path "$PWD" -s probe.gd
-          echo "RESOURCE PROBE EXIT=$?"
-          rm -f probe.gd
+          echo "PLAIN_QUIT_DEFAULT_EXIT=$?"
           exit 0
 
       - name: Run tests
