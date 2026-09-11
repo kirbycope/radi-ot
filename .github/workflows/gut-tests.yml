@@ -68,6 +68,21 @@ jobs:
             godot --headless --path "$PWD" --import
           done
 
+      - name: Diagnose the shutdown abort
+        shell: bash
+        run: |
+          set +e
+          echo "===== whole suite, leak checks LEFT ON ====="
+          godot --headless --audio-driver Dummy --path "$PWD"             -s addons/gut/gut_cmdln.gd -gconfig=res://.gutconfig.json -gcompact_mode -gexit
+          echo "WHOLE SUITE EXIT=$?"
+          echo
+          for f in addons/radi_ot/tests/test_*.gd; do
+            echo "===== $f ====="
+            godot --headless --audio-driver Dummy --path "$PWD"               -s addons/gut/gut_cmdln.gd -gtest="res://$f" -gcompact_mode -gexit 2>&1 | tail -4
+            echo "EXIT=${PIPESTATUS[0]} for $f"
+          done
+          exit 0
+
       - name: Run tests
         shell: bash
         env:
