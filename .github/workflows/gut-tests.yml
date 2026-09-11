@@ -68,32 +68,18 @@ jobs:
             godot --headless --path "$PWD" --import
           done
 
-      - name: Does the engine abort on plain shutdown
-        shell: bash
-        run: |
-          set +e
-          godot --headless --audio-driver Dummy --path "$PWD" --quit
-          echo "PLAIN_QUIT_DUMMY_EXIT=$?"
-          godot --headless --path "$PWD" --quit
-          echo "PLAIN_QUIT_DEFAULT_EXIT=$?"
-          exit 0
-
       - name: Run tests
         shell: bash
-        env:
-          GODOT_DISABLE_LEAK_CHECKS: "1"
         run: |
           set -euo pipefail
           mkdir -p test-results
-          godot \
-            --headless \
-            --audio-driver Dummy \
-            --path "$PWD" \
-            -s addons/gut/gut_cmdln.gd \
-            -gconfig=res://.gutconfig.json \
-            -gjunit_xml_file=test-results/gut-junit.xml \
-            -gcompact_mode \
-            -gexit
+          # Godot aborts in its own shutdown on Linux after the report is written, so the run is
+          # judged by the report. See tools/check_gut_report.py for what was ruled out.
+          set +e
+          godot             --headless             --audio-driver Dummy             --path "$PWD"             -s addons/gut/gut_cmdln.gd             -gconfig=res://.gutconfig.json             -gjunit_xml_file=test-results/gut-junit.xml             -gcompact_mode             -gexit
+          godot_status=$?
+          set -e
+          python3 tools/check_gut_report.py test-results/gut-junit.xml "$godot_status"
 
       - name: Archive test reports
         if: always()
