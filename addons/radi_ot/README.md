@@ -17,6 +17,7 @@
   - **98.1 FM — KING-FM:** Classical Seattle
   - **101.1 FM — KMGP (Space 101.1 FM):** Indie, Local Seattle, and Eclectic community radio
 - **Urgent Bulletin System (`urgent_bulletin`):** Seamlessly interrupt live radio broadcasts with custom story audio (emergency broadcasts, story alerts, news flashes). When the bulletin finishes, live radio automatically resumes.
+- **Bulletins over the network (`broadcast_bulletin`):** In a multiplayer session call `broadcast_bulletin(stream_path, text, duration)` on the radio this peer controls and every peer hears the same bulletin at the same moment on its own radio, never on a puppet's copy. The stream travels by resource path, so it must be a file in the project. Offline it is `urgent_bulletin`.
 - **Retro-Modern CanvasLayer HUD:** Displays current frequency, call sign, genre, live signal indicator, a Tween-animated dial bar, optional key hints (`hint_text`), and emergency alert banners. The panel auto-hides through its `AutoHideTimer` child and fades out with a Tween; set `toast_hide = false` on the HUD (as the demo scene does) to keep it on screen.
 - **Procedural FM Static:** Realistic white/pink noise static plays seamlessly while buffering or switching between stations.
 - **Dual-Platform Streaming Engine:**

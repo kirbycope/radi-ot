@@ -157,3 +157,21 @@ func test_demo_hud_stays_visible() -> void:
 	hud.show_hud()
 	assert_true(hud._auto_hide_timer.is_stopped(), "Showing the HUD in the demo must not start the auto-hide timer")
 	assert_true(hud._panel_container.visible)
+
+
+## A broadcast bulletin plays on the radio this peer controls and on no puppet's copy, so a Steam session hears
+## one bulletin per player rather than one per radio in the tree; offline it is urgent_bulletin.
+func test_broadcast_bulletin_plays_on_this_peers_own_radio_only() -> void:
+	var someone_else: Node = Node.new()
+	someone_else.name = "42"
+	someone_else.set_multiplayer_authority(42)
+	add_child_autofree(someone_else)
+	var their_radio: RadiOtPlayer3D = PLAYER_SCENE.instantiate()
+	their_radio.set_multiplayer_authority(42) # as a Player sets it on everything under it when it spawns
+	someone_else.add_child(their_radio)
+	_player.broadcast_bulletin("", "Breaking news", 5.0)
+	assert_true(_player.is_bulletin_active(), "The bulletin plays on the radio this peer controls")
+	assert_false(their_radio.is_bulletin_active(), "and not on a copy that belongs to another peer")
+	var config: Dictionary = (_player.get_script() as Script).get_rpc_config()
+	assert_true(config.has(&"_receive_bulletin"), "and it travels by RPC between peers")
+	assert_eq(config[&"_receive_bulletin"]["call_local"], true, "landing here as well as there")
