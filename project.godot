@@ -36,5 +36,5 @@ rendering_device/driver.windows="d3d12"
 texture={
 &"compress/mode": 0,
 &"detect_3d/compress_to": 1,
-&"process/size_limit": 512
+&"process/size_limit": 0
 }
