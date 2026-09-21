@@ -159,19 +159,20 @@ func test_demo_hud_stays_visible() -> void:
 	assert_true(hud._panel_container.visible)
 
 
-## A broadcast bulletin plays on the radio this peer controls and on no puppet's copy, so a Steam session hears
-## one bulletin per player rather than one per radio in the tree; offline it is urgent_bulletin.
-func test_broadcast_bulletin_plays_on_this_peers_own_radio_only() -> void:
-	var someone_else: Node = Node.new()
-	someone_else.name = "42"
-	someone_else.set_multiplayer_authority(42)
-	add_child_autofree(someone_else)
+## A broadcast bulletin plays on every radio this peer has, whoever holds their authority: radios belong to
+## cars and rooms, of which every peer has one copy, so that is once per radio for everyone. Offline it is
+## urgent_bulletin.
+func test_broadcast_bulletin_plays_on_every_radio_here() -> void:
+	var someone_elses_car: Node = Node.new()
+	someone_elses_car.name = "42"
+	someone_elses_car.set_multiplayer_authority(42)
+	add_child_autofree(someone_elses_car)
 	var their_radio: RadiOtPlayer3D = PLAYER_SCENE.instantiate()
-	their_radio.set_multiplayer_authority(42) # as a Player sets it on everything under it when it spawns
-	someone_else.add_child(their_radio)
+	their_radio.set_multiplayer_authority(42) # a car driven by another peer hands its radio that peer's authority
+	someone_elses_car.add_child(their_radio)
 	_player.broadcast_bulletin("", "Breaking news", 5.0)
-	assert_true(_player.is_bulletin_active(), "The bulletin plays on the radio this peer controls")
-	assert_false(their_radio.is_bulletin_active(), "and not on a copy that belongs to another peer")
+	assert_true(_player.is_bulletin_active(), "The bulletin plays on this radio")
+	assert_true(their_radio.is_bulletin_active(), "and on the one in a car another peer is driving")
 	var config: Dictionary = (_player.get_script() as Script).get_rpc_config()
 	assert_true(config.has(&"_receive_bulletin"), "and it travels by RPC between peers")
 	assert_eq(config[&"_receive_bulletin"]["call_local"], true, "landing here as well as there")

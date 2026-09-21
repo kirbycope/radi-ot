@@ -139,10 +139,10 @@ func cancel_bulletin() -> void:
 	_on_bulletin_finished()
 
 
-## Puts one bulletin on every peer's own radio at once, so two players in a Steam session hear the same
+## Puts one bulletin on every radio on every peer at once, so two players in a Steam session hear the same
 ## broadcast at the same moment. The stream travels by its resource path, so it has to be a file in the project;
-## the text and duration go along. Each peer plays it on the radio it controls and on no puppet's copy, so
-## nobody hears it twice. Offline it is [method urgent_bulletin]. Call it on the radio this peer controls.
+## the text and duration go along. Every peer has one copy of each radio in the world (a car's, a room's), so
+## playing it on all of them there is once per radio for everyone. Offline it is [method urgent_bulletin].
 func broadcast_bulletin(stream_path: String, text: String, duration: float = 0.0) -> void:
 	if multiplayer.get_peers().is_empty():
 		_receive_bulletin(stream_path, text, duration)
@@ -150,13 +150,12 @@ func broadcast_bulletin(stream_path: String, text: String, duration: float = 0.0
 		_receive_bulletin.rpc(stream_path, text, duration)
 
 
-## Lands on every peer's copy of the sender's radio; from there the bulletin goes to the one radio this peer
-## controls, which is the one it hears.
+## Lands on every peer's copy of the sender's radio; from there the bulletin goes to every radio that peer has.
 @rpc("any_peer", "call_local", "reliable")
 func _receive_bulletin(stream_path: String, text: String, duration: float) -> void:
 	var stream: AudioStream = load(stream_path) as AudioStream if not stream_path.is_empty() else null
 	for radio: Node in get_tree().get_nodes_in_group("radio"):
-		if radio is RadiOtPlayer3D and radio.is_multiplayer_authority():
+		if radio is RadiOtPlayer3D:
 			(radio as RadiOtPlayer3D).urgent_bulletin(stream, text, duration)
 
 
