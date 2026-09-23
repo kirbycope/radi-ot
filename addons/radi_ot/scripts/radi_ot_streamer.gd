@@ -78,6 +78,15 @@ var _current_path: String = "/"
 var _current_use_ssl: bool = false
 
 
+## The timeout Timer is a child from the moment the node exists, so it is freed with it whether or not the node
+## ever enters the tree (the web returns from _ready before the desktop setup).
+func _init() -> void:
+	_timeout_timer.one_shot = true
+	_timeout_timer.wait_time = STREAM_TIMEOUT_SECONDS
+	_timeout_timer.timeout.connect(_on_desktop_stream_error.bind("Stream timed out after %.0f s." % STREAM_TIMEOUT_SECONDS))
+	add_child(_timeout_timer)
+
+
 func _ready() -> void:
 	set_process(not _is_web_platform and not Engine.is_editor_hint())
 	if _is_web_platform:
@@ -88,10 +97,6 @@ func _ready() -> void:
 		spatial_timer.timeout.connect(_update_web_spatial_audio)
 		add_child(spatial_timer)
 		return
-	_timeout_timer.one_shot = true
-	_timeout_timer.wait_time = STREAM_TIMEOUT_SECONDS
-	_timeout_timer.timeout.connect(_on_desktop_stream_error.bind("Stream timed out after %.0f s." % STREAM_TIMEOUT_SECONDS))
-	add_child(_timeout_timer)
 	for i: int in 2:
 		var channel: AudioStreamPlayer3D = AudioStreamPlayer3D.new()
 		channel.name = "StreamChannel%d" % i
